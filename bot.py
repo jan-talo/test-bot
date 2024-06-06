@@ -46,6 +46,8 @@ async def on_message(message):
     elif text == '/neko' \
       or text == '/ねこ':
         await message.channel.send('にゃーん')
+        Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
+        await message.add_reaction(Emoji)
 
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
