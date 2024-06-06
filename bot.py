@@ -53,6 +53,12 @@ async def on_message(message):
         await sendMessage.add_reaction(Emoji)
         await asyncio.sleep(0.5)
         await sendMessage.edit(content='にゃーん！')
+        await asyncio.sleep(10)
+        print(message.reactions)
+        # I do not actually recommend doing this.
+        async for user in message.reactions[0].users():
+            await message.channel.send(f'{user} has reacted with {message.reactions[0].emoji}!')
+        
     
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
