@@ -55,10 +55,15 @@ async def on_message(message):
         await sendMessage.edit(content='にゃーん！')
         await asyncio.sleep(10)
         print(message.reactions)
+        reaction = message.reactions[0]
         # I do not actually recommend doing this.
-        async for user in message.reactions[0].users():
-            await message.channel.send(f'{user} has reacted with {message.reactions[0].emoji}!')
-        
+        async for user in reaction.users():
+            await message.channel.send(f'{user} has reacted with {reaction.emoji}!')
+            print(user.id)
+        users = [user async for user in reaction.users()]
+        # users is now a list of User...
+        winner = random.choice(users)
+        await message.channel.send(f'{winner} has won the raffle.')
     
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
