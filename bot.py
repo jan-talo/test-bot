@@ -14,7 +14,6 @@ from unidecode import unidecode
 # config.jsonの設定を読み込み
 config_data = json.load(open('config.json','r',encoding="utf-8_sig"))
 TOKEN = config_data['TOKEN']
-ID = config_data['ID']
 
 # 接続に必要なオブジェクトを生成
 intents = discord.Intents.default()
@@ -54,16 +53,12 @@ async def on_message(message):
         result = random.choice(listJanken)
         await message.channel.send(f'{message.author}さん：　{result}')
 
-    elif message.author.id == ID:
+    elif await bot.is_owner(message.author):
         if text == '/おやすみ':
-           await bot.close()
-           print('botはコマンドによりログアウトしました')
-
-#@bot.event
-#async def on_disconnect():
-#    await bot.logout()
-#    raise SystemExit()
-#    sys.exit()
+            # await bot.close()
+            # print(f'{message.author}さんのコマンドにより')
+            # print('botはログアウトしました')
+            await message.channel.send(f'{message.author}さん、おやすみなさい')
 
 """
  @bot.command()
