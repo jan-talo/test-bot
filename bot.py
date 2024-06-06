@@ -50,6 +50,7 @@ async def on_message(message):
         sendMessage = await message.channel.send('にゃーん')
         Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
         await message.add_reaction(Emoji)
+        await sendMessage.add_reaction(Emoji)
         await asyncio.sleep(0.5)
         await sendMessage.edit(content='にゃーん！')
     
