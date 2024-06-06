@@ -11,6 +11,8 @@ import uuid
 import re
 from unidecode import unidecode
 
+import asyncio
+
 # config.jsonの設定を読み込み
 config_data = json.load(open('config.json','r',encoding="utf-8_sig"))
 TOKEN = config_data['TOKEN']
@@ -45,10 +47,12 @@ async def on_message(message):
     # 「/neko」と発言したら「にゃーん」が返る処理
     elif text == '/neko' \
       or text == '/ねこ':
-        await message.channel.send('にゃーん')
+        sendMessage = await message.channel.send('にゃーん')
         Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
         await message.add_reaction(Emoji)
-
+        await asyncio.sleep(0.5)
+        await sendMessage.edit(content='にゃーん！')
+    
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
       or text == '!janken':
