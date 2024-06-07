@@ -68,14 +68,14 @@ async def on_message(message):
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
       or text == '!janken':
-        listJanken = ["ぐー", "ちょき", "ぱー"]
+        listJanken = ["ぐー:fist:", "ちょき:v:", "ぱー:hand_splayed:"]
         result = random.choice(listJanken)
         await message.channel.send(f'{message.author}さん：　{result}')
 
     elif message.author.id == ID:
         if text == '/おやすみ':
-           await bot.close()
-           print('botはコマンドによりログアウトしました')
+            print('botはコマンドによりログアウトしました')
+            await bot.close()
 
 #@bot.event
 #async def on_disconnect():
