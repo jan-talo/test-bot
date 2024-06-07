@@ -11,6 +11,8 @@ import uuid
 import re
 from unidecode import unidecode
 
+import asyncio
+
 # config.jsonの設定を読み込み
 config_data = json.load(open('config.json','r',encoding="utf-8_sig"))
 TOKEN = config_data['TOKEN']
@@ -25,10 +27,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     # 起動したらターミナルにログイン通知が表示される
     print(f'Logged on as {bot.user}!')
-'''
-async def on_ready(self):
-    print(f'Logged on as {self.user}!')
-'''
+
 # メッセージ受信時に動作する処理
 @bot.event
 async def on_message(message):
@@ -44,46 +43,25 @@ async def on_message(message):
     # 「/neko」と発言したら「にゃーん」が返る処理
     elif text == '/neko' \
       or text == '/ねこ':
-        await message.channel.send('にゃーん')
-
+        sendMessage = await message.channel.send('にゃーん')
+        Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
+        await message.add_reaction(Emoji)
+        await sendMessage.add_reaction(Emoji)
+        await asyncio.sleep(10)
+        await sendMessage.edit(content='にゃーん！')
+          
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
       or text == '!janken':
-        listJanken = ["ぐー", "ちょき", "ぱー"]
+        listJanken = ["ぐー:fist:", "ちょき:v:", "ぱー:hand_splayed:"]
         result = random.choice(listJanken)
         await message.channel.send(f'{message.author}さん：　{result}')
 
     elif await bot.is_owner(message.author):
         if text == '/おやすみ':
-            # await bot.close()
-            # print(f'{message.author}さんのコマンドにより')
-            # print('botはログアウトしました')
             await message.channel.send(f'{message.author}さん、おやすみなさい')
-
-"""
- @bot.command()
-async def createChannel(ctx, name: str = None, category: str = None):
-    if not name:
-        await ctx.send('チャンネル名を指定してください。')
-        return
-
-    guild = ctx.guild
-
-    if category:
-        category_channel = discord.utils.get(guild.categories, name=category)
-        if category_channel is None:
-            await ctx.send(f'カテゴリー「{category}」が見つかりません。')
-            return
-    else:
-        category_channel = None
-
-    if category_channel:
-        await guild.create_text_channel(name, category=category_channel)
-    else:
-        await guild.create_text_channel(name)
-
-    await ctx.send(f'チャンネル「{name}」が作成されました。') 
-"""
+            print('botはコマンドによりログアウトしました')
+            await bot.close()
 
 # Botの起動とDiscordサーバーへの接続
 bot.run(TOKEN)
