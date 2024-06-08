@@ -101,7 +101,7 @@ async def on_message(message):
 
 
     elif text == '!jankenpon':
-        reply_text = f'じゃんけんに参加する方は、\n{getStump('vs')}を押してください。'
+        reply_text = 'じゃんけんに参加する方は、\n' + getStump('vs') + 'を押してください。'
         sendMessage = await message.channel.send(reply_text)
         # await asyncio.sleep(0.5)
         await sendMessage.add_reaction(getStump('vs'))
@@ -135,8 +135,9 @@ async def on_message(message):
             count = choice_pattern.count(False)
             if count == 1:
                 winner_index = choice_pattern.index(False) +1
-                winner = getText(list_janken[winner_index])+getStump(choice)
-                reply_text += f'\n{winner}の勝利です！{getText("victory")}'
+                winner = getText(list_janken[winner_index])
+                reply_text += winner + getStump(choice) + 'の勝利です！' 
+                reply_text += getText("victory")
             else :
                 reply_text += "\nあいこでした。……もっかいやります？"
         await sendMessage.edit(content = reply_text)
