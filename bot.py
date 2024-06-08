@@ -99,48 +99,49 @@ async def on_message(message):
         reply_text += getStump(choice)
         await message.channel.send(reply_text)
 
-    elif await bot.is_owner(message.author):
-        if text == '!jankenpon':
-            reply_text = f'じゃんけんに参加する方は、\n{getStump('vs')}を押してください。'
-            sendMessage = await message.channel.send(reply_text)
-            # await asyncio.sleep(0.5)
-            await sendMessage.add_reaction(getStump('vs'))
-            await asyncio.sleep(10)
-            sendMessage = await sendMessage.fetch()
-            reaction = sendMessage.reactions[0]
-            # print(sendMessage.reactions)
-            users = [user async for user in reaction.users()]
-            users.pop(0) # botを除外
-            if len(users) == 0:
-                reply_text += "\n残念、参加者がいらっしゃいませんでした。"
-            elif len(users) == 1:
-                choice = random.choice(list_janken)
-                reply_text += f'\n{users[0].name}さんが {getText(choice)}'
-                reply_text += getStump(choice)
-                reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
-            else :
-                # users_name = []
-                reply_text += "\n\n### 結果発表！\n"
-                choice_pattern = [False,False,False]
-                for user in users:
-                    # users_name.append(user.name)
-                    # print(user.name)
-                    choice = random.choice(list_janken)
-                    index = list_janken.index(choice)
-                    choice_pattern[index] = True
-                    reply_text += f'{user.name}さん： {getText(choice)}'
-                    reply_text += getStump(choice)
-                    reply_text += "\n"
-                print(choice_pattern)
-                count = choice_pattern.count(False)
-                if count == 1:
-                    winner_index = choice_pattern.index(False) +1
-                    winner = getText(list_janken[winner_index])+getStump(choice)
-                    reply_text += f'\n{winner}の勝利です！{getText("victory")}'
-                else :
-                    reply_text += "\nあいこでした。……もっかいやります？"
-            await sendMessage.edit(content = reply_text)
 
+    elif text == '!jankenpon':
+        reply_text = f'じゃんけんに参加する方は、\n{getStump('vs')}を押してください。'
+        sendMessage = await message.channel.send(reply_text)
+        # await asyncio.sleep(0.5)
+        await sendMessage.add_reaction(getStump('vs'))
+        await asyncio.sleep(10)
+        sendMessage = await sendMessage.fetch()
+        reaction = sendMessage.reactions[0]
+        # print(sendMessage.reactions)
+        users = [user async for user in reaction.users()]
+        users.pop(0) # botを除外
+        if len(users) == 0:
+            reply_text += "\n残念、参加者がいらっしゃいませんでした。"
+        elif len(users) == 1:
+            choice = random.choice(list_janken)
+            reply_text += f'\n{users[0].name}さんが {getText(choice)}'
+            reply_text += getStump(choice)
+            reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
+        else :
+            # users_name = []
+            reply_text += "\n\n### 結果発表！\n"
+            choice_pattern = [False,False,False]
+            for user in users:
+                # users_name.append(user.name)
+                # print(user.name)
+                choice = random.choice(list_janken)
+                index = list_janken.index(choice)
+                choice_pattern[index] = True
+                reply_text += f'{user.name}さん： {getText(choice)}'
+                reply_text += getStump(choice)
+                reply_text += "\n"
+            print(choice_pattern)
+            count = choice_pattern.count(False)
+            if count == 1:
+                winner_index = choice_pattern.index(False) +1
+                winner = getText(list_janken[winner_index])+getStump(choice)
+                reply_text += f'\n{winner}の勝利です！{getText("victory")}'
+            else :
+                reply_text += "\nあいこでした。……もっかいやります？"
+        await sendMessage.edit(content = reply_text)
+        
+    elif await bot.is_owner(message.author):
         elif text == '/おやすみ':
             await message.channel.send(f'{message.author}さん、おやすみなさい')
             print('botはコマンドによりログアウトしました')
