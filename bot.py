@@ -142,7 +142,7 @@ async def on_message(message):
         await sendMessage.edit(content = reply_text)
         
     elif await bot.is_owner(message.author):
-        elif text == '/おやすみ':
+        if text == '/おやすみ':
             await message.channel.send(f'{message.author}さん、おやすみなさい')
             print('botはコマンドによりログアウトしました')
             await bot.close()
