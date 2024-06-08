@@ -18,7 +18,7 @@ config_data = json.load(open('config.json','r',encoding="utf-8_sig"))
 TOKEN = config_data['TOKEN']
 
 # じゃんけんスタンプ定義
-list_janken = ["guu","choki","paa"]
+list_janken = ["guu","choki","paa","guu"]
 list_stump = {
     'guu': {
         'stumps': [":right_facing_fist:", ":punch:", ":fist:", ":left_facing_fist:", ":boxing_glove:", ":rock:", ":gem:", ":bricks:", ":curling_stone:", ":moyai:", ":ice_cube:", ":guitar:", ":zero:", ":o2:", ":u7121:"],
@@ -48,7 +48,8 @@ def getText(name):
 def getStump(name):
     result_stump = ":green_heart:"
     if name =="vs":
-        result_stump = ":vs:"
+        # result_stump = ":vs:"
+        result_stump = "\N{Squared Vs}"
     elif name in list_stump:
         temp = list_stump[name]
         result_stump = random.choices(temp['stumps'],weights=temp['weights'])[0]   
@@ -69,7 +70,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     # Userが発言したらターミナルに 名前(ID): 発言内容 が表示される
-    print(f'Message from {message.author} ({message.author.id}): {message.content}')
+    # print(f'Message from {message.author} ({message.author.id}): {message.content}')
     text = message.content
 
     # メッセージ送信者がBotだった場合は無視する
@@ -84,7 +85,11 @@ async def on_message(message):
         await message.add_reaction(Emoji)
         await sendMessage.add_reaction(Emoji)
         await asyncio.sleep(10)
+        # print(message.reactions)
+        # sendMessage = await sendMessage.fetch()
+        # print(sendMessage.reactions)
         await sendMessage.edit(content='にゃーん！')
+
           
     elif text == '!じゃんけん' \
       or text == '!ジャンケン' \
@@ -96,8 +101,46 @@ async def on_message(message):
 
     elif await bot.is_owner(message.author):
         if text == '!jankenpon':
-            sendMessage = await message.channel.send('じゃんけんに参加する方は、')
-            # message.reactions[0]
+            reply_text = f'じゃんけんに参加する方は、\n{getStump('vs')}を押してください。'
+            sendMessage = await message.channel.send(reply_text)
+            # await asyncio.sleep(0.5)
+            await sendMessage.add_reaction(getStump('vs'))
+            await asyncio.sleep(10)
+            sendMessage = await sendMessage.fetch()
+            reaction = sendMessage.reactions[0]
+            # print(sendMessage.reactions)
+            users = [user async for user in reaction.users()]
+            users.pop(0) # botを除外
+            if len(users) == 0:
+                reply_text += "\n残念、参加者がいらっしゃいませんでした。"
+            elif len(users) == 1:
+                choice = random.choice(list_janken)
+                reply_text += f'\n{users[0].name}さんが {getText(choice)}'
+                reply_text += getStump(choice)
+                reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
+            else :
+                # users_name = []
+                reply_text += "\n\n### 結果発表！\n"
+                choice_pattern = [False,False,False]
+                for user in users:
+                    # users_name.append(user.name)
+                    # print(user.name)
+                    choice = random.choice(list_janken)
+                    index = list_janken.index(choice)
+                    choice_pattern[index] = True
+                    reply_text += f'{user.name}さん： {getText(choice)}'
+                    reply_text += getStump(choice)
+                    reply_text += "\n"
+                print(choice_pattern)
+                count = choice_pattern.count(False)
+                if count == 1:
+                    winner_index = choice_pattern.index(False) +1
+                    winner = getText(list_janken[winner_index])+getStump(choice)
+                    reply_text += f'\n{winner}の勝利です！{getText("victory")}'
+                else :
+                    reply_text += "\nあいこでした。……もっかいやります？"
+            await sendMessage.edit(content = reply_text)
+
         elif text == '/おやすみ':
             await message.channel.send(f'{message.author}さん、おやすみなさい')
             print('botはコマンドによりログアウトしました')
