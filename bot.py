@@ -119,24 +119,30 @@ async def on_message(message):
             reply_text += getStump(choice)
             reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
         else :
-            # users_name = []
             reply_text += "\n\n### 結果発表！\n"
-            choice_pattern = [False,False,False]
+            pattern = { users: [[],[],[]], choice: [False,False,False] }
             for user in users:
                 # users_name.append(user.name)
                 # print(user.name)
+
                 choice = random.choice(list_janken)
                 index = list_janken.index(choice)
-                choice_pattern[index] = True
-                reply_text += f'{user.name}さん： {getText(choice)}'
+                pattern['choice'][index] = True
+                pattern['users'][index] = f'{user.display_name}さん'
+                reply_text += f'{user.display_name}さん： {getText(choice)}'
                 reply_text += getStump(choice)
                 reply_text += "\n"
-            print(choice_pattern)
-            count = choice_pattern.count(False)
+            print(pattern)
+            count = pattern['choice'].count(False)
             if count == 1:
-                winner_index = choice_pattern.index(False) +1
-                winner = getText(list_janken[winner_index])
-                reply_text += winner + getStump(choice) + 'の勝利です！' 
+                winner_index = pattern['choice'].index(False) +1
+                winner_choice = list_janken[winner_index]
+                winner = getText(winner_choice) + getStump(winner_choice)
+                reply_text += winner + 'を出した'
+                reply_text += ', '.join(pattern['users']) 
+                if len(pattern['choice']) >= 2:
+                    reply_text += '達'
+                reply_text += ' の勝利です！' 
                 reply_text += getText("victory")
             else :
                 reply_text += "\nあいこでした。……もっかいやります？"
