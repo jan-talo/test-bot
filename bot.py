@@ -76,6 +76,27 @@ async def on_message(message):
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
         return
+    
+    elif text == '/すたんぷ':
+        Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
+        reply_text = f'リアクションからニックネームが取得できるかのテストです。{Emoji}を押してください。'
+        sendMessage = await message.channel.send(reply_text)
+        await sendMessage.add_reaction(Emoji)
+        await asyncio.sleep(7)
+        sendMessage = await sendMessage.fetch()
+        reaction = sendMessage.reactions[0]
+        # print(sendMessage.reactions)
+        users = [user async for user in reaction.users()]
+        for user in users:
+            print(user.id)
+            fetched_user = await discord.Client.fetch_user(user.id)
+            reply_text += f'\n　{fetched_user.display_name}さん'
+            
+            # getted_user = discord.Client.get_user(user.id)
+            # reply_text += f'\n　{getted_user.display_name}さん'
+
+            # reply_text += f'\n　{user.display_name}さん'
+        await sendMessage.edit(content=reply_text)
 
     # 「/neko」と発言したら「にゃーん」が返る処理
     elif text == '/neko' \
