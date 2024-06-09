@@ -101,7 +101,7 @@ async def on_message(message):
 
 
     elif text == '!jankenpon':
-        reply_text = 'じゃんけんに参加する方は、\n' + getStump('vs') + 'を押してください。'
+        reply_text = 'じゃんけんに参加する方は、 vs を押してください。'
         sendMessage = await message.channel.send(reply_text)
         # await asyncio.sleep(0.5)
         await sendMessage.add_reaction(getStump('vs'))
@@ -120,15 +120,12 @@ async def on_message(message):
             reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
         else :
             reply_text += "\n\n### 結果発表！\n"
-            pattern = { users: [[],[],[]], choice: [False,False,False] }
+            pattern = { 'users': [[],[],[]], 'choice': [False,False,False] }
             for user in users:
-                # users_name.append(user.name)
-                # print(user.name)
-
                 choice = random.choice(list_janken)
                 index = list_janken.index(choice)
                 pattern['choice'][index] = True
-                pattern['users'][index] = f'{user.display_name}さん'
+                pattern['users'][index].append(f'{user.display_name}さん')
                 reply_text += f'{user.display_name}さん： {getText(choice)}'
                 reply_text += getStump(choice)
                 reply_text += "\n"
@@ -139,7 +136,7 @@ async def on_message(message):
                 winner_choice = list_janken[winner_index]
                 winner = getText(winner_choice) + getStump(winner_choice)
                 reply_text += winner + 'を出した'
-                reply_text += ', '.join(pattern['users']) 
+                reply_text += ', '.join(pattern['users'][winner_index]) 
                 if len(pattern['choice']) >= 2:
                     reply_text += '達'
                 reply_text += ' の勝利です！' 
