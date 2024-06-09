@@ -136,8 +136,11 @@ async def on_message(message):
                 winner_choice = list_janken[winner_index]
                 winner = getText(winner_choice) + getStump(winner_choice)
                 reply_text += winner + 'を出した'
-                reply_text += ', '.join(pattern['users'][winner_index]) 
-                if len(pattern['choice']) >= 2:
+                if winner_index == 3:
+                    winner_index = 0
+                winners = pattern['users'][winner_index]
+                reply_text += ', '.join(winners) 
+                if len(winners) >= 2:
                     reply_text += '達'
                 reply_text += ' の勝利です！' 
                 reply_text += getText("victory")
