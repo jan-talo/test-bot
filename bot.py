@@ -115,7 +115,7 @@ async def on_message(message):
             reply_text += "\n残念、参加者がいらっしゃいませんでした。"
         elif len(users) == 1:
             choice = random.choice(list_janken)
-            reply_text += f'\n{users[0].name}さんが {getText(choice)}'
+            reply_text += f'\n{users[0].display_name}さんが {getText(choice)}'
             reply_text += getStump(choice)
             reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
         else :
