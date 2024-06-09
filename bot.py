@@ -77,27 +77,6 @@ async def on_message(message):
     if message.author.bot:
         return
     
-    elif text == '/すたんぷ':
-        Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
-        reply_text = f'リアクションからニックネームが取得できるかのテストです。{Emoji}を押してください。'
-        sendMessage = await message.channel.send(reply_text)
-        await sendMessage.add_reaction(Emoji)
-        await asyncio.sleep(7)
-        sendMessage = await sendMessage.fetch()
-        reaction = sendMessage.reactions[0]
-        # print(sendMessage.reactions)
-        users = [user async for user in reaction.users()]
-        for user in users:
-            print(user.id)
-            fetched_user = await discord.Client.fetch_user(user.id)
-            reply_text += f'\n　{fetched_user.display_name}さん'
-            
-            # getted_user = discord.Client.get_user(user.id)
-            # reply_text += f'\n　{getted_user.display_name}さん'
-
-            # reply_text += f'\n　{user.display_name}さん'
-        await sendMessage.edit(content=reply_text)
-
     # 「/neko」と発言したら「にゃーん」が返る処理
     elif text == '/neko' \
       or text == '/ねこ':
@@ -116,7 +95,7 @@ async def on_message(message):
       or text == '!ジャンケン' \
       or text == '!janken':
         choice = random.choice(list_janken)
-        reply_text = f'{message.author}さん： {getText(choice)}'
+        reply_text = f'{message.author.display_name}さん： {getText(choice)}'
         reply_text += getStump(choice)
         await message.channel.send(reply_text)
 
@@ -136,7 +115,7 @@ async def on_message(message):
             reply_text += "\n残念、参加者がいらっしゃいませんでした。"
         elif len(users) == 1:
             choice = random.choice(list_janken)
-            reply_text += f'\n{users[0].display_name}さんが {getText(choice)}'
+            reply_text += f'\n{users[0].mention}さんが {getText(choice)}'
             reply_text += getStump(choice)
             reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
         else :
@@ -146,8 +125,9 @@ async def on_message(message):
                 choice = random.choice(list_janken)
                 index = list_janken.index(choice)
                 pattern['choice'][index] = True
-                pattern['users'][index].append(f'{user.display_name}さん')
-                reply_text += f'{user.display_name}さん： {getText(choice)}'
+                mention = f'{user.mention}さん'
+                pattern['users'][index].append(mention)
+                reply_text += f'{mention}： {getText(choice)}'
                 reply_text += getStump(choice)
                 reply_text += "\n"
             print(pattern)
