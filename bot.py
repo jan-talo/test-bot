@@ -17,44 +17,6 @@ import asyncio
 config_data = json.load(open('config.json','r',encoding="utf-8_sig"))
 TOKEN = config_data['TOKEN']
 
-# じゃんけんスタンプ定義
-list_janken = ["guu","choki","paa","guu"]
-list_stump = {
-    'guu': {
-        'stumps': [":right_facing_fist:", ":punch:", ":fist:", ":left_facing_fist:", ":boxing_glove:", ":rock:", ":gem:", ":bricks:", ":curling_stone:", ":moyai:", ":ice_cube:", ":guitar:", ":zero:", ":o2:", ":u7121:"],
-        'weights': [6,6,6,6,5,4,4,4,4,3,2,2,1,1,1]
-    },
-    'choki': {
-        'stumps': [":v:" ,":scissors:" ,":crossed_swords:" ,":white_check_mark:" ,":heavy_check_mark:" ,":ballot_box_with_check:" ,":crab:" ,":lobster:" ,":fingers_crossed:" ,":person_getting_haircut:" ,":woman_getting_haircut:" ,":man_getting_haircut:" ,":clapper:" ,":carpentry_saw:" ,":axe:" ,":knife:" ,":dagger:" ,":aries:" ,":heavy_division_sign:" ,":u5272:" ,":two:"],
-        'weights': [5,5,3,3,2,3,4,4,3,2,2,2,1,1,1,2,2,2,1,1,1]
-    },
-    'paa': {
-        'stumps': [":rightwards_hand:", ":leftwards_hand:", ":wave:", ":hand_splayed:", ":raised_back_of_hand:", ":raised_hand:", ":scroll:", ":page_facing_up:", ":newspaper2:", ":newspaper:", ":hugging:", ":gloves:", ":vulcan:", ":raised_hands:", ":palms_up_together:", ":open_hands:", ":roll_of_paper:", ":dollar:", ":yen:", ":map:", ":page_with_curl:", ":bookmark_tabs:", ":parking:", ":five:", ":hamsa:", ":euro:", ":pound:"],
-        'weights': [3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1]
-    },
-    'victory': {
-        'stumps': [":trophy:", ":medal:", ":military_medal:", ":partying_face:", ":yum:", ":zany_face:", ":innocent:", ":smirk_cat:", ":crown:", ":cherry_blossom:", ":star:", ":sparkles:", ":rosette:", ":first_place:", ":confetti_ball:", ":tada:", ":sparkling_heart:", ":congratulations:", ":white_flower:", ":100:"],
-        'weights': [2,2,2,2,2,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2]
-    }
-}
-
-def getText(name):
-    result_text = ""
-    if name in list_janken:
-        index = list_janken.index(name)
-        result_text = ["ぐー ","ちょき ","ぱー "][index]
-    return result_text
-
-def getStump(name):
-    result_stump = ":green_heart:"
-    if name =="vs":
-        # result_stump = ":vs:"
-        result_stump = "\N{Squared Vs}"
-    elif name in list_stump:
-        temp = list_stump[name]
-        result_stump = random.choices(temp['stumps'],weights=temp['weights'])[0]   
-    return result_stump
-
 # 接続に必要なオブジェクトを生成
 intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent
@@ -71,15 +33,14 @@ async def on_ready():
 async def on_message(message):
     # Userが発言したらターミナルに 名前(ID): 発言内容 が表示される
     # print(f'Message from {message.author} ({message.author.id}): {message.content}')
-    text = message.content
-
+    texts = message.content.split(' ')
+    command = texts.pop(0)
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
         return
     
-    # 「/neko」と発言したら「にゃーん」が返る処理
-    elif text == '/neko' \
-      or text == '/ねこ':
+    # 「!neko」と発言したら「にゃーん」が返る処理
+    elif command == '!ねこ':
         sendMessage = await message.channel.send('にゃーん')
         Emoji = "\N{Grinning Cat Face with Smiling Eyes}"
         await message.add_reaction(Emoji)
@@ -89,71 +50,70 @@ async def on_message(message):
         # sendMessage = await sendMessage.fetch()
         # print(sendMessage.reactions)
         await sendMessage.edit(content='にゃーん！')
+    
+    elif command == '!くじ':
+        if not texts:
+            await message.channel.send('コマンドの後に半角スペースに続けて、くじのタイトルを入れてください。登録されているタイトルは !タイトル で確認できます。')
+            return
+        title = texts.pop(0)
+        kuji_data = json.load(open('kuji_data.json','r',encoding="utf-8_sig"))
+        if title in kuji_data:
+            kuji_list = kuji_data[title]
+        else:
+            await message.channel.send('くじのタイトルが違うようです。')
+            return
+        
+        if not texts:
+            count = 1
+        elif texts[0].isdigit():
+            count = int(texts[0])
+        else:
+            count = 1 
 
-          
-    elif text == '!じゃんけん' \
-      or text == '!ジャンケン' \
-      or text == '!janken':
-        choice = random.choice(list_janken)
-        reply_text = f'{message.author.display_name}さん： {getText(choice)}'
-        reply_text += getStump(choice)
+        choice = ''
+        isLong = False
+        for i in range(count):
+            choice += f'{random.choice(kuji_list)}'
+            if len(choice) >= 250:
+                isLong = True
+                break
+            elif i == count:
+                break
+            choice += ', '
+        if isLong:
+            reply_text = f'{choice[:250]}...too long'
+        else:
+            reply_text = choice
         await message.channel.send(reply_text)
 
+    elif command == '!メモリー':
+        title = texts.pop(0)
+        kuji_list = texts
+        kuji_data = json.load(open('kuji_data.json','r',encoding="utf-8_sig"))
+        kuji_data[title] = kuji_list
+        writhing = open('kuji_data.json','w',encoding="utf-8_sig")
+        json.dump(kuji_data, writhing, indent=4)
+        if title in kuji_data:
+            reply_text = f'{title}を記録しました。'
+        else:
+            reply_text = f'{title}を上書きしました。'            
+        await message.channel.send(reply_text)
 
-    elif text == '!jankenpon':
-        reply_text = 'じゃんけんに参加する方は、 vs を押してください。'
-        sendMessage = await message.channel.send(reply_text)
-        # await asyncio.sleep(0.5)
-        await sendMessage.add_reaction(getStump('vs'))
-        await asyncio.sleep(10)
-        sendMessage = await sendMessage.fetch()
-        reaction = sendMessage.reactions[0]
-        # print(sendMessage.reactions)
-        users = [user async for user in reaction.users()]
-        users.pop(0) # botを除外
-        if len(users) == 0:
-            reply_text += "\n残念、参加者がいらっしゃいませんでした。"
-        elif len(users) == 1:
-            choice = random.choice(list_janken)
-            reply_text += f'\n{users[0].mention}さんが {getText(choice)}'
-            reply_text += getStump(choice)
-            reply_text += f'を出しましたが、周りに誰もいませんでした。\n……'
-        else :
-            reply_text += "\n\n### 結果発表！\n"
-            pattern = { 'users': [[],[],[]], 'choice': [False,False,False] }
-            for user in users:
-                choice = random.choice(list_janken)
-                index = list_janken.index(choice)
-                pattern['choice'][index] = True
-                mention = f'{user.mention}さん'
-                pattern['users'][index].append(mention)
-                reply_text += f'{mention}： {getText(choice)}'
-                reply_text += getStump(choice)
-                reply_text += "\n"
-            print(pattern)
-            count = pattern['choice'].count(False)
-            if count == 1:
-                winner_index = pattern['choice'].index(False) +1
-                winner_choice = list_janken[winner_index]
-                winner = getText(winner_choice) + getStump(winner_choice)
-                reply_text += winner + 'を出した'
-                if winner_index == 3:
-                    winner_index = 0
-                winners = pattern['users'][winner_index]
-                reply_text += ', '.join(winners) 
-                if len(winners) >= 2:
-                    reply_text += '達'
-                reply_text += ' の勝利です！' 
-                reply_text += getText("victory")
-            else :
-                reply_text += "\nあいこでした。……もっかいやります？"
-        await sendMessage.edit(content = reply_text)
-        
+    elif command == '!タイトル':
+        kuji_data = json.load(open('kuji_data.json','r',encoding="utf-8_sig"))
+        reply_text = ''
+        for title, kuji_list in kuji_data.items():
+            temp = ', '.join(kuji_list)
+            reply_text += f'{title}: {temp[:20]}...\n'            
+        await message.channel.send(reply_text)
+    
+
     elif await bot.is_owner(message.author):
-        if text == '/おやすみ':
+        if command == '/おやすみ':
             await message.channel.send(f'{message.author}さん、おやすみなさい')
             print('botはコマンドによりログアウトしました')
             await bot.close()
 
 # Botの起動とDiscordサーバーへの接続
 bot.run(TOKEN)
+
